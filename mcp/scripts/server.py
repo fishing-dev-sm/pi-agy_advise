@@ -5,7 +5,7 @@ import json
 import os
 import sys
 from contextlib import asynccontextmanager, suppress
-from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Annotated, Literal
 from uuid import uuid4
 
@@ -20,24 +20,18 @@ from telemetry import record_invocation
 IDLE_SECONDS = 600
 Effort = Literal["low", "medium", "high", "xhigh", "max"]
 Stance = Literal["global", "red_team", "tactical"]
-def workspace() -> str:
-    """Directory the advisor CLI may inspect. Defaults to the launch directory."""
-    configured = os.getenv("AGY_ADVISE_WORKSPACE", "").strip()
-    return str(Path(configured).expanduser().resolve()) if configured else os.getcwd()
-
-
 SESSION_SETTINGS = {
-    "toolPermission": "always-proceed",
+    "toolPermission": "request-review",
     "allowNonWorkspaceAccess": False,
     "permissions": {
         "deny": [
-            "command(rm)",
-            "command(sudo)",
-            "command(dd)",
-            "command(chmod)",
-            "command(chown)",
-            "command(mkfs)",
-            "command(shutdown)",
+            "read_file(*)",
+            "write_file(*)",
+            "command(*)",
+            "mcp(*)",
+            "read_url(*)",
+            "execute_url(*)",
+            "download_url(*)",
         ],
     },
 }
@@ -60,9 +54,8 @@ def build_advice_prompt(
         )
     else:
         sections.append(
-            "Ground the answer in evidence: read the relevant files and run read-only commands "
-            "instead of guessing from the question alone. Never claim a file or fact you have not "
-            "actually examined; if critical evidence is missing, name it explicitly."
+            "Answer in text strictly from the material supplied in this conversation. "
+            "Do not invent unseen files or unstated facts; if critical evidence is missing, name it explicitly."
         )
 
     sections.append(f"Question:\n{question}")
@@ -82,13 +75,7 @@ def build_advice_prompt(
             "Still flag any glaring premise flaw or contradiction in the evidence, distinguish confirmed "
             "facts from assumptions, and state concrete pass/stop criteria."
         )
-    elif is_followup:
-        sections.append(
-            "Stance (Independent Reviewer): Do not rubber-stamp the proposed options. Derive the right "
-            "direction from first principles using the goal, hard constraints, and observed failures, "
-            "and say why."
-        )
-    else:
+    elif not is_followup:
         sections.append(
             "Stance (Global-First Independent Reviewer):\n"
             "1. Zoom out before zooming in: first check whether the question frames a local symptom or "
@@ -248,10 +235,7 @@ class Advisor:
                 raise self.failure("Antigravity reported a failed turn.", result.get("error"))
             advice = result.get("response")
             if not isinstance(advice, str) or not advice.strip():
-                raise self.failure(
-                    "Antigravity returned no advice. A tool likely needed approval that headless mode "
-                    "cannot prompt for; check toolPermission in settings.json."
-                )
+                raise self.failure("Antigravity returned no advice. Try a self-contained text question.")
             if session_id not in self.conversations:
                 raise self.failure("Antigravity returned advice without a conversation ID.")
             return {
@@ -426,13 +410,14 @@ def server(executable: str) -> FastMCP:
 
     @asynccontextmanager
     async def lifespan(_server):
-        advisor = Advisor(executable, workspace())
-        try:
-            yield advisor
-        finally:
-            with anyio.CancelScope(shield=True):
-                async with advisor.lock:
-                    await advisor.stop()
+        with TemporaryDirectory(prefix="codex-agy-") as directory:
+            advisor = Advisor(executable, directory)
+            try:
+                yield advisor
+            finally:
+                with anyio.CancelScope(shield=True):
+                    async with advisor.lock:
+                        await advisor.stop()
 
     mcp = FastMCP("Antigravity Advisor", lifespan=lifespan)
 

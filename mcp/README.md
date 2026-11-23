@@ -82,7 +82,7 @@ ln -s /absolute/path/to/pi-agy_advise/mcp ~/.codex/skills/agy-advise
 - `AGY_ADVISE_LOG_FULL=1`：记录完整问答，仅供明确授权的调试使用。
 - `AGY_ADVISE_MODEL`：设置默认模型；单次调用仍可覆盖。
 
-只有显式提交的 `question`、`context` 和项目复盘证据会发送给 Google，**以及顾问 CLI 在工作区里自行读取的文件内容和命令输出**。CLI 在 `AGY_ADVISE_WORKSPACE` 指定的目录（未设置时为启动目录）中运行，工具放开，仅 `permissions.deny` 里的破坏性命令会被拒。把工作区指向含机密的目录，等于把这些机密一并发送给 Google；需要严格隔离就把该变量指向空目录。不要发送密钥、凭据、授权码或未授权的敏感内容。
+只有显式提交的 `question`、`context` 和项目复盘证据会发送给 Google。顾问 CLI 在临时目录中运行，文件、命令、浏览器和 MCP 工具均被禁用。不要发送密钥、凭据、授权码或未授权的敏感内容。
 
 ## 审计与反馈
 

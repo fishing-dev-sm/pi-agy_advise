@@ -20,8 +20,8 @@ Pi ──agy_advise(question)──▶ 长驻 agy 进程（默认模式, stream-
 - Pi 侧只发 `question`（可选一条 `context`），**不重传 Pi 的对话历史**。历史在 agy 那边。
 - 连续提问复用同一个 `conversation_id`，agy 的 prompt cache 因此持续命中。实测同一会话第二轮：`cache_read_tokens: 32973 / total_tokens: 36090`（约 91% 命中）。
 - 请求串行化，不会把 agy 的 stdin 写乱。
-- 每轮成功后开始计算空闲时间，空闲满 10 分钟回收进程。切换工作目录、空闲回收、失败、超时或进程退出后，下次调用会创建新会话。
-- 在同一目录里切换权限时，扩展会重启活跃进程并沿用会话 ID。
+- 每轮成功后开始计算空闲时间，空闲满 10 分钟回收进程。切换工作目录、传 `freshSession: true`、切换 `model`/`effort`、空闲回收、失败、超时或进程退出后，下次调用会创建新会话。
+- 在同一目录里只切换权限时，扩展会重启活跃进程并沿用会话 ID。
 
 ## 安装
 
@@ -78,7 +78,11 @@ headless 模式没法弹确认框。只要有一条命令需要批准，`agy` �
 |---|---|---|
 | `question` | ✅ | 目标、相关失败现象和开放问题。首轮应自包含，同一活跃会话的追问可增量提供 |
 | `context` | — | agy 看不到、但回答必需的最小事实。省略可省钱 |
-| `timeoutMs` | — | 单次问答超时，默认 240000 |
+| `stance` | — | 审查立场：`global`（默认，先审前提再落到细节）、`red_team`（反方红队审计，找最可能的失败点与最便宜证伪检查）、`tactical`（大方向已锁定时的聚焦实现建议） |
+| `freshSession` | — | 设为 `true` 时丢弃活跃会话、发起无菌室新会话，适合换主题或需要无沉没成本偏见的独立复盘 |
+| `model` | — | 可选模型覆盖（未传时读取 `AGY_ADVISE_MODEL` 或沿用 CLI 默认）；切换模型会新开会话 |
+| `effort` | — | 可选推理档位（`low`/`medium`/`high`/`xhigh`/`max`）；切换档位会新开会话 |
+| `timeoutMs` | — | 单次问答超时（含排队等待），默认 240000 |
 | `skipPermissions` | — | 传 `--dangerously-skip-permissions`。仅当 `agy` 侧没有放开 `toolPermission` 时需要，仍需用户明确授权本次调用 |
 
 在 Pi 里直接说人话即可，Pi 会自己决定何时调用，例如：
@@ -87,7 +91,7 @@ headless 模式没法弹确认框。只要有一条命令需要批准，`agy` �
 用 agy_advise 看下 /path/to/src/reconcile.py 的分层是否合理
 ```
 
-返回内容是一段建议文本，同时在 `details` 里带回 `conversationId`、耗时和 token 用量。
+返回内容是一段建议文本，同时在 `details` 里带回 `conversationId`、`seconds`、`queueSeconds`、`elapsedSeconds`、`model`、`stance`、`freshSession` 和 `usage`。
 
 ## 怎么问才不浪费
 

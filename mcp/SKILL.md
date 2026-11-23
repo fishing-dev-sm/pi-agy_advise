@@ -5,7 +5,7 @@ description: 用本机 Codex 的 agy_advise MCP 工具向 Google Antigravity 请
 
 # Antigravity Advisor (`agy-advise`)
 
-通过本机注册的 `agy_advise` MCP 工具，请 Google Antigravity 作为**独立全局技术审查员**，基于目标、硬约束与已证实证据给出不顺从局部惯性的判断。CLI 在临时目录的只读禁工具沙箱中运行，文件、命令、浏览器和 MCP 均被禁用，仅接收本次显式发送的文本。
+通过本机注册的 `agy_advise` MCP 工具，请 Google Antigravity 作为**独立全局技术审查员**，基于目标、硬约束与已证实证据给出不顺从局部惯性的判断。CLI 在 `AGY_ADVISE_WORKSPACE`（缺省为 MCP 启动目录）里运行，可以读文件、可以跑只读命令，只有 `permissions.deny` 里的破坏性命令被拒。它读到的工作区内容会随 Interactions 发送给 Google，所以提问时把这个目录控制在相关项目内。
 
 本 Skill 提供两层无缝衔接的能力：
 1. **全局问答模式（默认，零配置适用于任意项目）**：单次提问或短追问即可获得“先跳出框架审前提、再落到行动与止损”的全局意见。
@@ -152,7 +152,7 @@ description: 用本机 Codex 的 agy_advise MCP 工具向 Google Antigravity 请
 ## 五、调用故障处置
 
 - **只给过程描述不给判断**：补齐判据或目标，要求直接输出结论与理由。
-- **空回复或权限相关失败**：由本地先核查文件/命令事实，改写成纯文本可判断的问题后省略旧 `session_id` 重试。
+- **空回复或权限相关失败**：先查 `~/.gemini/antigravity-cli/settings.json` 的 `toolPermission`（本项目默认 `always-proceed`，靠 `permissions.deny` 兜底）；被拒的具体命令看工具返回的 stderr 尾部，不要改成“纯文本重试”来绕过。
 - **超时**：检查 `queue_seconds` 与 `elapsed_seconds` 区分排队还是执行耗时；项目复盘超时会保留待复盘状态，可安全用 `action: "review"` 重试；普通问答超时应省略旧 `session_id` 精简重问。
 - **登录或配额错误**：直接向用户报告工具返回的具体原因。安装或迁移后先用原生 `~/.local/bin/agy --print-timeout 30s --print "Reply with exactly: OK"` 验证登录与无交互模式；真实顾问联调走已注册的 `agy_advise` MCP 工具，不要在 Codex 命令沙箱子 shell 里嵌套启动 `server.py`/`agy` 代替，避免凭据与运行环境差异造成误判。
 - **OAuth `Code Challenge must be base64 encoded`**：检查复制到浏览器的授权 URL 是否混入换行、缩进或空格，只使用完整单行 URL。授权码仅粘贴到本机 CLI，不发送到聊天或其他工具。

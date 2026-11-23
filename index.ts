@@ -74,7 +74,11 @@ function buildPrompt(question: string, context: string | undefined, stance: Stan
     sections.push(
       "Stance (Focused Tactical): Answer directly from first principles for the stated scope. Still flag any glaring premise flaw or contradiction in the evidence, distinguish confirmed facts from assumptions, and state concrete pass/stop criteria.",
     );
-  } else if (!isFollowup) {
+  } else if (isFollowup) {
+    sections.push(
+      "Answer from first principles. If the question already offers candidate options or a proposed approach, do not simply pick one: derive what you think is right from the goal, the constraints, and the observed failures, and say why.",
+    );
+  } else {
     sections.push(
       "Answer from first principles. Zoom out before zooming in: check whether the question targets a local symptom or sunk-cost patch instead of the real bottleneck. If the question already offers candidate options or a proposed approach, do not simply pick one: derive what you think is right from the goal, the constraints, and the observed failures, separate confirmed facts from inferences and critical unknowns, and state the highest-leverage next step and stop condition.",
     );

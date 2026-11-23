@@ -23,6 +23,28 @@ Pi ──agy_advise(question)──▶ 长驻 agy 进程（默认模式, stream-
 - 每轮成功后开始计算空闲时间，空闲满 10 分钟回收进程。切换工作目录、传 `freshSession: true`、切换 `model`/`effort`、空闲回收、失败、超时或进程退出后，下次调用会创建新会话。
 - 在同一目录里只切换权限时，扩展会重启活跃进程并沿用会话 ID。
 
+## 两种实现，装哪个由你决定
+
+本仓库同时提供两个实现。它们共用同一个本机 `agy` CLI 和同一份 `~/.gemini/antigravity-cli/settings.json`，但**行为相反**，不是一个的旧版和新版。
+
+| | Pi 扩展（本页主体） | MCP 配套（`mcp/`） |
+| --- | --- | --- |
+| 调用方 | Pi，工具名 `agy_advise` | Codex 或其他 MCP 客户端 |
+| agy 的工作目录 | Pi 的工作目录 | 临时空目录 |
+| 工具 | 可用，受 `agy` 权限配置约束 | 全部禁用，只收文本 |
+| 本地状态 | 无 | SQLite 项目账本、调用审计 |
+| 配套 skill | `agy-advise` | `agy-advise-mcp` |
+
+怎么装：
+
+- 只在 Pi 里问 agy → 装扩展，不装 `mcp/`
+- 只在 Codex 等 MCP 客户端里用 → 装 `mcp/`，不装扩展
+- 两边都要 → 各自装进各自客户端。它们互不干扰，但共用同一个账号配额和全局 `settings.json`
+
+**不要把两者注册进同一个客户端。** 同一个会话里会同时出现两个 `agy_advise`（MCP 那个带 `mcp__` 前缀），一个有工具、一个无工具，语义相反，模型很可能挑错。
+
+选定的实现决定你该装哪份 skill：扩展对应 `agy-advise`，MCP 对应 `agy-advise-mcp`，两份内容不通用。
+
 ## 安装
 
 需要本机已安装并登录 `agy`（`agy --version` 能出结果即可）。
@@ -142,7 +164,7 @@ Google 的 [Antigravity 服务条款](https://antigravity.google/terms)禁止把
 
 需要跨多轮项目治理时，可以使用 [`mcp/`](mcp/README.md) 中的 **agy-advise-mcp**：一个独立的 Python MCP 服务，提供项目账本、派发门禁、HOLD 解封处方、三层外置记忆和调用审计。
 
-它是可选配套，不会随 Pi TypeScript 扩展自动加载；只使用本扩展的轻量问答时，不需要安装 Python 依赖。
+它是可选配套，不会随 Pi TypeScript 扩展自动加载；只使用本扩展的轻量问答时，不需要安装 Python 依赖。两者的区别和安装取舍见上文「两种实现，装哪个由你决定」。
 
 ## License
 

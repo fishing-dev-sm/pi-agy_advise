@@ -136,6 +136,12 @@ Google 的 [Antigravity 服务条款](https://antigravity.google/terms)禁止把
 
 另请注意官方对数据的说明：交互内容会被记录并可能被 Google 员工与承包商查看。不要把机密信息喂给它。
 
+## 可选配套：agy-advise-mcp
+
+需要跨多轮项目治理时，可以使用 [`mcp/`](mcp/README.md) 中的 **agy-advise-mcp**：一个独立的 Python MCP 服务，提供项目账本、派发门禁、HOLD 解封处方、三层外置记忆和调用审计。
+
+它是可选配套，不会随 Pi TypeScript 扩展自动加载；只使用本扩展的轻量问答时，不需要安装 Python 依赖。
+
 ## License
 
 MIT

@@ -1,9 +1,11 @@
 ---
 name: agy-advise
-description: 用 Pi 的 agy_advise 工具向 Antigravity CLI 请求独立分析。适用于架构取舍、排障卡住、破坏性改动前的评估、第二意见和 agy_advise 调用故障。
+description: 用 Pi 的 agy_advise 扩展向 Antigravity CLI 请求独立分析（Pi 扩展版；MCP 版是另一个 skill，叫 agy-advise-mcp）。适用于架构取舍、排障卡住、破坏性改动前的评估、第二意见和 agy_advise 调用故障。
 ---
 
-# agy-advise
+# agy-advise（Pi 扩展版）
+
+> 本文件只描述 **Pi 扩展** `agy_advise`。MCP 版同名工具（skill `agy-advise-mcp`）行为不同：在临时目录里运行、禁用全部工具、自带项目账本，且不共享会话、不共享权限策略。先确认自己在调哪一个。
 
 让 `agy` 根据目标、约束和观察到的证据独立提出方案。扩展不传 `--mode`，用 CLI 自己的执行模式默认值。文件与命令权限由 `agy` 的配置决定。
 

@@ -109,6 +109,8 @@ skill 随本仓库发布在 `skills/agy-advise/SKILL.md`：
 
 装完后 `/reload`，技能名就是 `agy-advise`；需要强制时用 `/skill:agy-advise`。
 
+> 本仓库有两份 skill，名字不同，别混：`agy-advise` 对应 Pi 扩展（agy 有工具权限、跑在 Pi 的工作目录），`agy-advise-mcp` 对应 MCP 版（agy 无工具、跑在临时目录）。两者行为相反，装哪一个取决于你要调哪一个。
+
 给 agy 一个开放问题，让它根据目标、约束和已观察到的现象找方案。
 
 - 不要先把问题坍缩成 A/B/C 再让它选。给目标、约束、已尝试、失败现象，让它自己划定方案空间。

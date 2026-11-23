@@ -54,7 +54,7 @@ tool_timeout_sec = 270
 如需安装调用规范 Skill，可将本目录链接到 Codex 的 Skill 目录；不要覆盖已有安装：
 
 ```bash
-ln -s /absolute/path/to/pi-agy_advise/mcp ~/.codex/skills/agy-advise
+ln -s /absolute/path/to/pi-agy_advise/mcp ~/.codex/skills/agy-advise-mcp
 ```
 
 ## 验证

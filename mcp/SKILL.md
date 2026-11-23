@@ -1,9 +1,11 @@
 ---
-name: agy-advise
-description: 用本机 Codex 的 agy_advise MCP 工具向 Google Antigravity 请求跨项目的独立全局技术判断与项目级决策治理。适用于任何项目（软件架构、系统重构、性能/排障卡点、ML/RL 实验、产品技术取舍）的全局审查、前提挑战、反方红队评审、阶段复盘与第二意见。
+name: agy-advise-mcp
+description: 用本机 Codex 的 agy_advise MCP 工具向 Google Antigravity 请求跨项目的独立全局技术判断与项目级决策治理（MCP 版；Pi 扩展版是另一个 skill，叫 agy-advise）。适用于任何项目（软件架构、系统重构、性能/排障卡点、ML/RL 实验、产品技术取舍）的全局审查、前提挑战、反方红队评审、阶段复盘与第二意见。
 ---
 
-# Antigravity Advisor (`agy-advise`)
+# Antigravity Advisor (`agy-advise-mcp`)
+
+> 本文件只描述 **MCP 版** `agy_advise`。Pi 扩展版同名工具（skill `agy-advise`）行为不同：在 Pi 的工作目录里运行、可用只读工具、不写本地账本，且不共享会话与权限策略。先确认自己在调哪一个。
 
 通过本机注册的 `agy_advise` MCP 工具，请 Google Antigravity 作为**独立全局技术审查员**，基于目标、硬约束与已证实证据给出不顺从局部惯性的判断。CLI 在临时目录的只读禁工具沙箱中运行，文件、命令、浏览器和 MCP 均被禁用，仅接收本次显式发送的文本。
 
